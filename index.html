@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Typing Speed Challenge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f1724;
+            --card: #0b1220;
+            --muted: #94a3b8;
+            --accent: #7c3aed;
+            --success: #10b981;
+            --danger: #ef4444;
+            --glass: rgba(255, 255, 255, 0.04);
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+            background: radial-gradient(1200px 600px at 10% 10%, rgba(124, 58, 237, 0.12), transparent 6%),
+                linear-gradient(180deg, var(--bg), #071028 60%);
+            color: #e6eef8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px;
+        }
+
+        .wrap {
+            width: 100%;
+            max-width: 980px
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px
+        }
+
+        header h1 {
+            font-size: 20px;
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: 0.2px
+        }
+
+        header small {
+            color: var(--muted);
+            display: block;
+            font-weight: 400
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+            border-radius: 14px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(6px);
+            box-shadow: 0 8px 30px rgba(2, 6, 23, 0.6);
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 18px
+        }
+
+        .panel {
+            padding: 16px;
+            border-radius: 12px;
+            background: var(--card);
+        }
+
+        /* left */
+        .panel .prompt {
+            font-size: 28px;
+            font-weight: 600;
+            margin: 8px 0 12px;
+            color: #fff
+        }
+
+        .word-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px
+        }
+
+        .word {
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: var(--glass);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--muted);
+            font-weight: 600
+        }
+
+        .word.current {
+            background: linear-gradient(90deg, var(--accent), rgba(124, 58, 237, 0.2));
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.12)
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px
+        }
+
+        .btn {
+            border: 0;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer
+        }
+
+        .btn.ghost {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--muted)
+        }
+
+        .btn.start {
+            background: linear-gradient(90deg, var(--accent), #5b21b6);
+            color: #fff
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 14px
+        }
+
+        .typed {
+            flex: 1
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            background: transparent;
+            color: #fff;
+            font-size: 16px;
+            outline: none
+        }
+
+        /* right */
+        .stats {
+            display: flex;
+            flex-direction: column;
+            gap: 12px
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+            border: 1px solid rgba(255, 255, 255, 0.03)
+        }
+
+        .stat strong {
+            font-size: 18px
+        }
+
+        .leader {
+            max-height: 140px;
+            overflow: auto;
+            margin-top: 6px;
+            padding-right: 6px
+        }
+
+        .ls-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-radius: 8px
+        }
+
+        footer {
+            margin-top: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        @media (max-width:880px) {
+            .game-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .panel {
+                padding: 12px
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <div>
+                <h1>Typing Speed Challenge</h1>
+                <small>Practice — Compete — Improve</small>
+            </div>
+            <div style="text-align:right;color:var(--muted)">Ahmed raza • Typing Test</div>
+        </header>
+
+        <div class="card game-grid">
+            <div class="panel">
+                <div class="prompt">Type the highlighted word as fast as you can</div>
+
+                <div class="word-box" id="wordBox" aria-live="polite"></div>
+
+                <div class="input-row">
+                    <div class="typed">
+                        <input id="typedInput" type="text" autocomplete="off" placeholder="Type here and press Enter"
+                            aria-label="typing input">
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center">
+                        <button class="btn start" id="startBtn">Start</button>
+                        <button class="btn ghost" id="stopBtn">Stop</button>
+                    </div>
+                </div>
+
+                <div style="margin-top:12px;color:var(--muted);font-size:14px">Tip: Press <strong>Enter</strong> to
+                    submit each word. Click <em>Stop</em> to finish the test.</div>
+            </div>
+
+            <aside class="panel stats">
+                <div class="stat">
+                    <div>Time</div>
+                    <div><strong id="timeDisplay">00:00</strong></div>
+                </div>
+                <div class="stat">
+                    <div>WPM</div>
+                    <div><strong id="wpmDisplay">0</strong></div>
+                </div>
+                <div class="stat">
+                    <div>Correct</div>
+                    <div><strong id="correctDisplay">0</strong></div>
+                </div>
+                <div class="stat">
+                    <div>Typed</div>
+                    <div><strong id="typedDisplay">0</strong></div>
+                </div>
+
+                <div style="margin-top:6px;color:var(--muted);font-weight:600">High Scores</div>
+                <div class="leader" id="leaderboard"></div>
+
+                <div style="margin-top:auto">
+                    <button class="btn ghost" id="resetScores">Reset Scores</button>
+                </div>
+            </aside>
+        </div>
+
+        <footer>
+            <div>Made with ❤️ — Show me your WPM in comments</div>
+            <div style="color:var(--muted)">v1.0</div>
+        </footer>
+    </div>
+
+    <script>
+        // ---------- Simple list of words ----------
+        const WORDS = `lorem ipsum developer keyboard speed challenge function variable syntax algorithm project code compile runtime interface data structure`.split(/\s+/);
+
+        // ---------- DOM refs ----------
+        const wordBox = document.getElementById('wordBox');
+        const typedInput = document.getElementById('typedInput');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const wpmDisplay = document.getElementById('wpmDisplay');
+        const correctDisplay = document.getElementById('correctDisplay');
+        const typedDisplay = document.getElementById('typedDisplay');
+        const leaderboard = document.getElementById('leaderboard');
+        const resetScores = document.getElementById('resetScores');
+
+        // ---------- State ----------
+        let running = false;
+        let startTs = 0;
+        let elapsed = 0;
+        let timerId = null;
+        let currentWord = '';
+        let correct = 0;
+        let typed = 0;
+        let highScores = JSON.parse(localStorage.getItem('ts_highscores') || '[]');
+
+        // ---------- Helpers ----------
+        function pickWord() {
+            return WORDS[Math.floor(Math.random() * WORDS.length)];
+        }
+
+        function pad(n) { return String(Math.floor(n)).padStart(2, '0'); }
+
+        function renderWords() {
+            wordBox.innerHTML = '';
+            // render a few words for context
+            for (let i = 0; i < 8; i++) {
+                const w = i === 0 ? currentWord : pickWord();
+                const span = document.createElement('span');
+                span.className = 'word' + (i === 0 ? ' current' : '');
+                span.textContent = w;
+                wordBox.appendChild(span);
+            }
+        }
+
+        function updateStats() {
+            const secs = Math.max(1, elapsed / 1000);
+            const wpm = Math.round((correct / secs) * 60);
+            wpmDisplay.textContent = wpm || 0;
+            correctDisplay.textContent = correct;
+            typedDisplay.textContent = typed;
+        }
+
+        function updateTimer() {
+            if (!running) return;
+            elapsed = Date.now() - startTs;
+            const s = Math.floor(elapsed / 1000) % 60;
+            const m = Math.floor(elapsed / 60000);
+            timeDisplay.textContent = `${pad(m)}:${pad(s)}`;
+            updateStats();
+        }
+
+        function start() {
+            if (running) return;
+            running = true; correct = 0; typed = 0; elapsed = 0;
+            currentWord = pickWord();
+            renderWords();
+            typedInput.value = '';
+            typedInput.focus();
+            startTs = Date.now();
+            timerId = setInterval(updateTimer, 250);
+            startBtn.textContent = 'Restart';
+        }
+
+        function stop() {
+            if (!running) return;
+            running = false;
+            clearInterval(timerId);
+            updateTimer();
+            const finalWpm = parseInt(wpmDisplay.textContent, 10) || 0;
+            // save to localStorage
+            highScores.push({ wpm: finalWpm, when: new Date().toISOString() });
+            highScores.sort((a, b) => b.wpm - a.wpm);
+            highScores = highScores.slice(0, 10);
+            localStorage.setItem('ts_highscores', JSON.stringify(highScores));
+            renderLeaderboard();
+            // small shout-out
+            alert(`Test finished — Your WPM: ${finalWpm}`);
+        }
+
+        function submitTyped() {
+            if (!running) return;
+            const val = typedInput.value.trim();
+            if (!val) return;
+            typed++;
+            if (val === currentWord) {
+                correct++;
+                currentWord = pickWord();
+                renderWords();
+            } else {
+                // subtle shake on wrong word
+                const el = wordBox.querySelector('.current');
+                el.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-6px)' }, { transform: 'translateX(0)' }], { duration: 160 });
+            }
+            typedInput.value = '';
+            updateStats();
+        }
+
+        function renderLeaderboard() {
+            leaderboard.innerHTML = '';
+            if (!highScores.length) {
+                leaderboard.innerHTML = '<div style="color:var(--muted);padding:8px">No scores yet — play to add one!</div>';
+                return;
+            }
+            highScores.forEach((s, idx) => {
+                const row = document.createElement('div');
+                row.className = 'ls-item';
+                row.innerHTML = `<div>#${idx + 1} — <strong style="color:var(--accent)">${s.wpm} WPM</strong></div><div style="color:var(--muted);font-size:13px">${new Date(s.when).toLocaleString()}</div>`;
+                leaderboard.appendChild(row);
+            });
+        }
+
+        startBtn.addEventListener('click', () => {
+            start();
+        });
+
+        stopBtn.addEventListener('click', () => {
+            stop();
+        });
+
+        typedInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                submitTyped();
+            }
+        });
+
+        resetScores.addEventListener('click', () => {
+            if (confirm('Reset saved high scores?')) {
+                highScores = [];
+                localStorage.removeItem('ts_highscores');
+                renderLeaderboard();
+            }
+        });
+
+        renderLeaderboard();
+        currentWord = pickWord(); renderWords();
+    </script>
+</body>
+</html>
